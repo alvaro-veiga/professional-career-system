@@ -26,26 +26,26 @@ def login_view(request):
             user = authenticate(request, email=email, password=password)
             if user is not None:
                 login(request, user)
-                return redirect(reverse('oportunity'))
+                return redirect('oportunity')
             else:
                 messages.error(request, 'Usuário ou senha inválidos.')
+        else:
+            messages.error(request, 'Erro ao enviar o formulário.')
     else:
         form = LoginForm()
-        messages.error(request, 'Usuário ou senha inválidos.')
     return render(request, 'login.html', {'form': form})
+
 
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            email = form.cleaned_data.get('email')
-            password1 = form.cleaned_data.get('password1')
-            password2 = form.cleaned_data.get('password2')
-            user = UserAutentication.objects.create_user(username=username, email=email, password1=password1, password2=password2)
-            user.save()
-            messages.success(request, f'Sua conta foi criada com sucesso! Você pode fazer login agora.')
+            user = form.save()
+            login(request, user)
+            messages.success(request, 'Sua conta foi criada com sucesso! Você pode fazer login agora.')
             return redirect('login')
+        else:
+            messages.error(request, 'Erro ao enviar o formulário.')
     else:
         form = RegistrationForm()
     return render(request, 'register.html', {'form': form})
